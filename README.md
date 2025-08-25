@@ -98,6 +98,11 @@ src/
 └── main.ts             # Ponto de entrada
 ```
 
+### Padrão de Commits
+
+Esse projeto utiliza o "[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)".
+Utilize sempre o "[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)" em cada alteração do projeto!
+
 ### Fluxo de Funcionamento
 
 1. Usuário envia uma URL longa via POST /shorten.
