@@ -25,7 +25,7 @@ Para rodar esse projeto, você vai precisar adicionar as seguintes variáveis de
 `ANOTHER_API_KEY`
 
 
-## Rodando localmente - TODO
+## Rodando localmente
 
 Clone o projeto
 
@@ -36,23 +36,23 @@ Clone o projeto
 Entre no diretório do projeto
 
 ```bash
-  cd url-shortener
+  cd url-shortener/url
 ```
 
-Instale as dependências - TODO
+Instale as dependências
 
 ```bash
   npm install
 ```
 
-Inicie o servidor - TODO
+Inicie o servidor
 
 ```bash
   npm run start
 ```
 
 
-## Instalação - TODO
+## Rodando com Docker - TODO
 
 Instale my-project com npm
 
@@ -70,7 +70,7 @@ Para fazer o deploy desse projeto rode
 ```
 
 
-## Rodando os testes - TODO
+## Rodando os testes
 
 Para rodar os testes, rode o seguinte comando
 
@@ -97,6 +97,14 @@ src/
 ├── shared/             # Helpers, erros, configurações comuns
 └── main.ts             # Ponto de entrada
 ```
+
+### Destaques da Estrutura
+
+- `docs/architecture/` → guarda todos os diagramas (C4, UML, DDD) e os ADRs.
+- `docs/engineering/` → foca na engenharia de software: APIs, dados, testes, observabilidade.
+- `docs/infrastructure/` → mistura documentação + código (IaC) para garantir rastreabilidade.
+- `docs/security/` → concentra políticas de segurança e compliance.
+- `ADRs numerados (0001-xxx.md)` → ajudam a manter histórico das decisões arquiteturais.
 
 ### Padrão de Commits
 

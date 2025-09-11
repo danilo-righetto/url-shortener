@@ -1,0 +1,1 @@
+# Estratégia de testes (unitário, integração, etc.)

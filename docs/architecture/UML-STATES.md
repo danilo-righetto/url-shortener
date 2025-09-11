@@ -1,0 +1,1 @@
+# Diagramas de estado (se necessário)
