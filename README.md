@@ -51,14 +51,63 @@ Inicie o servidor
   npm run start
 ```
 
+## Configuração do Ambiente
+
+Configurações e dependências do projeto.
+
+### Principais Dependências
+
+```sh
+pnpm add @nestjs/core @nestjs/common @nestjs/platform-express
+pnpm add @nestjs/typeorm typeorm pg
+pnpm add class-validator class-transformer
+pnpm add shortid
+pnpm add @nestjs/swagger swagger-ui-express
+```
+
+### Dependências de Desenvolvimento
+
+```sh
+pnpm add -D @nestjs/cli typescript ts-node nodemon jest @types/jest ts-jest
+```
+
+## Implementação dos Módulos
+
+**UrlModule**
+
+- POST /url → cria nova URL curta.
+- GET /:shortId → redireciona para a URL original.
+- GET /url/:id → retorna dados da URL.
+
+**Exemplo de Entidade:**
+
+```ts
+@Entity()
+export class Url {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  originalUrl: string;
+
+  @Column({ unique: true })
+  shortCode: string;
+
+  @Column({ default: 0 })
+  visitCount: number;
+
+  @CreateDateColumn()
+  createdAt: Date;
+}
+```
 
 ## Rodando com Docker - TODO
 
-Instale my-project com npm
+Instale url-shortener com npm
 
 ```bash
-  npm install my-project
-  cd my-project
+  npm install url-shortener
+  cd url-shortener
 ```
     
 ## Deploy - TODO
@@ -78,119 +127,84 @@ Para rodar os testes, rode o seguinte comando
   npm run test
 ```
 
+### Cobertura de testes
+
+```bash
+pnpm test --coverage
+```
+
+## Middleware e Interceptores
+
+**Middleware de Redirecionamento**
+
+- Intercepta rota `/:shortCode`.
+
+- Busca a URL original e redireciona com `response.redirect()`.
+
+- Registra o evento no `AnalyticsService`.
+
+**Interceptores**
+
+- LoggingInterceptor → logs de requisições.
+
+- TimeoutInterceptor → limita tempo de resposta.
+
+- TransformInterceptor → padroniza respostas JSON.
+
+## Módulo Analytics
+
+- Captura logs de acesso via **Middleware**.
+
+- Endpoint `/analytics/:id` retorna estatísticas de cliques, origem e data.
+
+## Segurança e Boas Práticas
+
+- Sanitizar entrada de URLs.
+
+- Usar `helmet` e `rate-limiter` contra abuso.
+
+- Validar origem das requisições.
+
+- Hash opcional para URLs privadas.
+
+- Logs estruturados com **Winston** ou **Pino**.
+
+## Evolução e Escalabilidade
+
+**Possíveis Extensões:**
+
+- Painel web (Next.js / Vue.js) para gerenciar URLs.
+
+- Suporte a expiração de links.
+
+- API pública com chaves de acesso.
+
+- Shortcodes personalizados.
+
+- Integração com Redis para cache.
+
+- Versionamento de API (v1, v2).
+
+- Microserviço dedicado a redirecionamentos.
 
 ## Documentação
 
 Desenvolver uma API backend para encurtamento de URLs, permitindo que os usuários enviem uma URL longa e recebam uma versão curta. 
 A aplicação também deve redirecionar os acessos da URL curta para o destino original, armazenar estatísticas básicas e garantir escalabilidade, manutenibilidade e clareza de código.
 
-### Arquitetura do Projeto
+Para mais informações sobre [Arquitetura do Projeto](./DOCS.md) pode ser encontrada [aqui](./DOCS.md).
 
-Dividida em camadas bem definidas para separar responsabilidades (exemplo com typescript):
+### Swagger
 
-```bash
-src/
-├── domain/             # Regras de negócio (Entidades, Interfaces, Use Cases)
-├── application/        # Casos de uso (Application Services)
-├── infrastructure/     # Comunicação externa (DB, Redis, Logger)
-├── presentation/       # Controllers, rotas e validações
-├── shared/             # Helpers, erros, configurações comuns
-└── main.ts             # Ponto de entrada
-```
-
-### Destaques da Estrutura
-
-- `docs/architecture/` → guarda todos os diagramas (C4, UML, DDD) e os ADRs.
-- `docs/engineering/` → foca na engenharia de software: APIs, dados, testes, observabilidade.
-- `docs/infrastructure/` → mistura documentação + código (IaC) para garantir rastreabilidade.
-- `docs/security/` → concentra políticas de segurança e compliance.
-- `ADRs numerados (0001-xxx.md)` → ajudam a manter histórico das decisões arquiteturais.
-
-### Padrão de Commits
-
-Esse projeto utiliza o "[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)".
-Utilize sempre o "[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)" em cada alteração do projeto!
-
-### Fluxo de Funcionamento
-
-1. Usuário envia uma URL longa via POST /shorten.
-2. O sistema gera um hash único e armazena a correspondência no banco de dados.
-3. O sistema retorna a URL encurtada (https://short.ly/abc123).
-4. Quando alguém acessa /abc123, o sistema redireciona para a URL original.
-
-### Requisitos Técnicos
-
-> **Linguagem**: TypeScript (Node.js) ou PHP
-
-> **Framework**: Express.js (com TypeScript) ou Laravel/Symfony
-
-> **Banco de Dados**: PostgreSQL ou MongoDB
-
-> **Cache**: Redis (para redirecionamento rápido)
-
-> **Outros**: Docker, Swagger/OpenAPI, ESLint/Prettier, PHPUnit
-
-### Design de Classes e Responsabilidades (Princípios SOLID)
-
-#### S - Single Responsibility Principle
-
-Cada classe tem uma responsabilidade única:
-
-- `UrlShortenerService` → lógica de encurtamento
-- `UrlRepository` → acesso ao banco
-- `RedirectController` → apenas para redirecionar
-
-#### O - Open/Closed Principle
-
-A lógica de geração de hash pode ser trocada sem alterar o serviço:
+Usar **@nestjs/swagger**:
 
 ```ts
-interface HashGenerator {
-  generate(url: string): string;
-}
+const config = new DocumentBuilder()
+  .setTitle('URL Shortener API')
+  .setDescription('API para encurtar e gerenciar URLs')
+  .setVersion('1.0.0')
+  .build();
 ```
-
-#### L - Liskov Substitution Principle
-
-Qualquer implementação de `HashGenerator` deve poder ser usada no lugar de outra sem quebrar o sistema.
-
-#### I - Interface Segregation Principle
-
-Evita interfaces muito grandes, dividindo responsabilidades:
-
-```ts
-interface UrlReader {
-  findByHash(hash: string): Url | null;
-}
-
-interface UrlWriter {
-  save(url: Url): void;
-}
-```
-
-#### D - Dependency Inversion Principle
-
-As dependências (como repositórios) são injetadas por abstrações:
-
-```ts
-class UrlShortenerService {
-  constructor(private readonly repo: UrlRepository) {}
-}
-```
-
-### Segurança
-
-- Validação de URLs maliciosas
-- Limitação de taxa (`rate limiting`)
-- Códigos curtos com tempo de expiração (opcional)
-- Sanitização de entradas
-
-### Possíveis Extensões Futuras
-
-- Dashboard com visualização das URLs encurtadas
-- Autenticação para usuários criarem e gerenciarem suas URLs
-- Personalização de aliases (`/meu-link`)
-- QR Code automático
 
 
 ## Autores
