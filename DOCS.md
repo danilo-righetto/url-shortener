@@ -1,4 +1,8 @@
-# Arquitetura do Projeto
+# Documentação do Projeto
+
+Confira as informações sobre a documentação do projeto.
+
+## Arquitetura do Projeto
 
 Dividida em camadas bem definidas para separar responsabilidades (exemplo com typescript):
 
@@ -12,7 +16,7 @@ src/
 └── main.ts             # Ponto de entrada
 ```
 
-# Destaques da Estrutura
+## Destaques da Estrutura
 
 - `docs/architecture/` → guarda todos os diagramas (C4, UML, DDD) e os ADRs.
 - `docs/engineering/` → foca na engenharia de software: APIs, dados, testes, observabilidade.
@@ -20,19 +24,19 @@ src/
 - `docs/security/` → concentra políticas de segurança e compliance.
 - `ADRs numerados (0001-xxx.md)` → ajudam a manter histórico das decisões arquiteturais.
 
-# Padrão de Commits
+## Padrão de Commits
 
 Esse projeto utiliza o "[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)".
 Utilize sempre o "[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)" em cada alteração do projeto!
 
-# Fluxo de Funcionamento
+## Fluxo de Funcionamento
 
 1. Usuário envia uma URL longa via POST /shorten.
 2. O sistema gera um hash único e armazena a correspondência no banco de dados.
 3. O sistema retorna a URL encurtada (https://short.ly/abc123).
 4. Quando alguém acessa /abc123, o sistema redireciona para a URL original.
 
-# Requisitos Técnicos
+## Requisitos Técnicos
 
 > **Linguagem**: TypeScript (Node.js) ou PHP
 
@@ -44,9 +48,9 @@ Utilize sempre o "[Conventional Commits](https://www.conventionalcommits.org/en/
 
 > **Outros**: Docker, Swagger/OpenAPI, ESLint/Prettier, PHPUnit
 
-# Design de Classes e Responsabilidades (Princípios SOLID)
+## Design de Classes e Responsabilidades (Princípios SOLID)
 
-## S - Single Responsibility Principle
+### S - Single Responsibility Principle
 
 Cada classe tem uma responsabilidade única:
 
@@ -54,7 +58,7 @@ Cada classe tem uma responsabilidade única:
 - `UrlRepository` → acesso ao banco
 - `RedirectController` → apenas para redirecionar
 
-## O - Open/Closed Principle
+### O - Open/Closed Principle
 
 A lógica de geração de hash pode ser trocada sem alterar o serviço:
 
@@ -64,11 +68,11 @@ interface HashGenerator {
 }
 ```
 
-## L - Liskov Substitution Principle
+### L - Liskov Substitution Principle
 
 Qualquer implementação de `HashGenerator` deve poder ser usada no lugar de outra sem quebrar o sistema.
 
-## I - Interface Segregation Principle
+### I - Interface Segregation Principle
 
 Evita interfaces muito grandes, dividindo responsabilidades:
 
@@ -82,7 +86,7 @@ interface UrlWriter {
 }
 ```
 
-## D - Dependency Inversion Principle
+### D - Dependency Inversion Principle
 
 As dependências (como repositórios) são injetadas por abstrações:
 
@@ -92,25 +96,25 @@ class UrlShortenerService {
 }
 ```
 
-# Segurança
+## Segurança
 
 - Validação de URLs maliciosas
 - Limitação de taxa (`rate limiting`)
 - Códigos curtos com tempo de expiração (opcional)
 - Sanitização de entradas
 
-# Possíveis Extensões Futuras
+## Possíveis Extensões Futuras
 
 - Dashboard com visualização das URLs encurtadas
 - Autenticação para usuários criarem e gerenciarem suas URLs
 - Personalização de aliases (`/meu-link`)
 - QR Code automático
 
-# Requisitos funcionais e não funcionais
+## Requisitos funcionais e não funcionais
 
 Os [requisitos funcionais e não funcionais](./docs/engineering/REQUIREMENTS.md) podem ser detalhados [aqui](./docs/engineering/REQUIREMENTS.md).
 
-# Calculo das Estimativas
+## Calculo das Estimativas
 
 Operações de gravação: 100 milhões de URLs por dia = **100.000.000 / 24 / 60 / 60 = 1160 RPS**
 
@@ -120,13 +124,13 @@ Tempo de armazenamento das URLs: 10 anos = **100.000.000 * 365 * 10 = 365 Bilhõ
 
 Capacidade de armazenamento: 100 bytes por URL = **365 Bilhões * 100 bytes = 36,5Tb**
 
-# Banco de Dados
+## Banco de Dados
 
 O **banco de dados** escolhido para essa aplicação foi o [Cassandra Query Language](https://cassandra.apache.org/doc/4.0/cassandra/cql/).
 
 Para mais informações sobre a implementação do [Cassandra Query Language](./docs/infrastructure/DATABASE.md) acesse [aqui](./docs/infrastructure/DATABASE.md).
 
-# Gerando a HASH
+## Gerando a HASH
 
 Através de uma **URL longa**, vamos criar uma **URL curta** através da função de **HASH**:
 
@@ -140,7 +144,7 @@ Não podemos utilizar o **md5** para a construção das hashes, por conta do **p
 
 O **paradoxo do aniversário** (ou birthday paradox) é um famoso problema de probabilidade que mostra como nossa intuição costuma falhar quando pensamos em eventos aleatórios.
 
-## A ideia básica
+### A ideia básica
 
 A pergunta é:
 
@@ -148,12 +152,12 @@ A pergunta é:
 
 A resposta surpreendente é: apenas 23 pessoas.
 
-## Por que isso é um paradoxo?
+### Por que isso é um paradoxo?
 
 Porque intuitivamente, muita gente pensa que seria necessário um número muito maior — algo perto de 183 pessoas (metade de 365 dias).
 Mas a matemática mostra que a coincidência acontece muito antes disso.
 
-## O raciocínio matemático
+### O raciocínio matemático
 
 Vamos supor:
 
@@ -171,7 +175,7 @@ todos os aniversários são igualmente prováveis.
 
 ![birthday paradox](./img/BIRTHDAY-PARADOX-CALCULE.png)
 
-## Calculando o HASH
+### Calculando o HASH
 
 Para esse projeto será usado o cálculo `base 62`, com base no cálculo abaixo:
 
@@ -179,9 +183,20 @@ Para esse projeto será usado o cálculo `base 62`, com base no cálculo abaixo:
 
 Como vamos utilizar até **7 caracteres** na composição da URL encurtada, isso resulta em **~3.5 trilhões** de combinações.
 
-### Solução
+#### Solução
 
 A conversão de **base 62** é a nossa solução para o **problema de colisão**:
 
 ![base 62 conversion](./img/BASE-62-CONVERSION.jpg)
 
+**Porém isso gera o seguinte problema de segurança**: um pessoa esperta que perceba que as URLs estão sendo geradas incrementalmente, vai notar que está sendo utilizado o algoritmo base 62 e com isso será possível obter o ID.
+
+Para que isso não aconteça, é necessário ofuscar o **base 62** com o **hashid**:
+
+![hashid](./img/HASHID.png)
+
+E agora podemos gerar as URLs encurtadas sem problemas.
+
+## O Design do Sistema
+
+A documentação do [design do sistema](./docs/architecture/SYSTEM-DESIGN.md) foi detalhada [aqui](./docs/architecture/SYSTEM-DESIGN.md).
